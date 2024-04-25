@@ -28,22 +28,11 @@ def process_rtf_file(file_path, target_string):
         # Search for the target string in the plain text content
         if target_string in plain_text:
             return True
+        else:
+            return False
     except Exception as e:
         print(f"Error processing RTF file '{file_path}': {e}")
     return False
-
-
-def save_attachment_from_file(file_path, target_string):
-    """Save attachment from a file to a folder with the matching target string."""
-    # Iterate through destination folders
-    for folder_name in os.listdir(DESTINATION_FOLDER_PATH):
-        folder_path = os.path.join(DESTINATION_FOLDER_PATH, folder_name)
-        if os.path.isdir(folder_path) and target_string in folder_name:
-            print(f"Attempting to process file '{file_path}' with target string '{target_string}'")
-            # Copy the file to the matching folder
-            success = copy_file_to_subfolder(file_path, folder_path)
-            if not success:
-                print(f"Failed to copy file '{file_path}' to '{folder_path}'")
 
 
 def main():
