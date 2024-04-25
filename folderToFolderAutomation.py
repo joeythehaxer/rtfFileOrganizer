@@ -28,14 +28,15 @@ def process_rtf_file(file_path, target_string):
     with open(file_path, 'r') as f:
         rtf_content = f.read()
         # Convert RTF to plain text
-        # plain_text = rtf_to_text(rtf_content)
+        plain_text = rtf_to_text(rtf_content)
+
     # Search for the target string in the plain text content
-    if target_string in rtf_content:
+    if target_string in plain_text:
         # Return True if the target string is found
+        print("string found")
         return True
     else:
         # Return False if the target string is not found
-        print(f"string not found for {file_path}")
         return False
 
 # except Exception as e:
@@ -51,7 +52,7 @@ def main():
             folder_path = os.path.join(DESTINATION_FOLDER_PATH, folder_name)
             if os.path.isdir(folder_path):
                 # Extract target string from folder name
-                target_string = folder_name[:7]
+                target_string = folder_name[:6]
                 # Iterate through source files to find files containing target string
                 for file_name in os.listdir(SOURCE_FOLDER_PATH):
                     file_path = os.path.join(SOURCE_FOLDER_PATH, file_name)
@@ -60,8 +61,8 @@ def main():
                         if process_rtf_file(file_path, target_string):
                             # Copy the file to the matching folder
                             copy_file_to_subfolder(file_path, folder_path)
-                        else:
-                            print("\n")
+
+
         # Print a message when script execution is completed
         print("Script execution completed.")
     except Exception as e:
