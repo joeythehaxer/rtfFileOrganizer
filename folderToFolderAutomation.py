@@ -11,7 +11,7 @@ def copy_file_to_subfolder(file_path, target_folder_path):
     """Copy a file to a target subfolder."""
     try:
         # Copy the file to the target folder
-        shutil.copy2(file_path, target_folder_path)  # Using shutil.copy2() to preserve metadata
+        shutil.copy(file_path, target_folder_path)  # Using shutil.copy2() to preserve metadata
         # Print a success message
         print(f"File '{os.path.basename(file_path)}' copied to '{target_folder_path}'")
         return True
@@ -23,21 +23,23 @@ def copy_file_to_subfolder(file_path, target_folder_path):
 
 def process_rtf_file(file_path, target_string):
     """Process an RTF file."""
-    print(target_string)
+    # print(target_string)
     # Open the RTF file and read its content
     with open(file_path, 'r') as f:
         rtf_content = f.read()
-        # Convert RTF to plain text
-        plain_text = rtf_to_text(rtf_content)
 
+        # Convert RTF to plain text
+        plain_text = repr(rtf_to_text(rtf_content))
+        # print(repr(plain_text))
     # Search for the target string in the plain text content
-    if target_string in plain_text:
-        # Return True if the target string is found
-        print("string found")
-        return True
-    else:
-        # Return False if the target string is not found
-        return False
+        if target_string in plain_text:
+            # Return True if the target string is found
+            print("string found")
+            return True
+        else:
+            # Return False if the target string is not found
+            print("target string wasn't found")
+            return False
 
 # except Exception as e:
 #     # Print an error message if processing fails
@@ -50,18 +52,29 @@ def main():
         # Iterate through destination folders to get target strings
         for folder_name in os.listdir(DESTINATION_FOLDER_PATH):
             folder_path = os.path.join(DESTINATION_FOLDER_PATH, folder_name)
+            # print(folder_path)
             if os.path.isdir(folder_path):
                 # Extract target string from folder name
-                target_string = folder_name[:6]
+                target_string = folder_name[:8]
+                processed_target_string = ""
+                for a in target_string:
+                    if a.isalnum():
+                        processed_target_string += a
+                print("searching for job number " + processed_target_string + " in " + SOURCE_FOLDER_PATH)
                 # Iterate through source files to find files containing target string
                 for file_name in os.listdir(SOURCE_FOLDER_PATH):
+
                     file_path = os.path.join(SOURCE_FOLDER_PATH, file_name)
-                    if os.path.isfile(file_path) and file_name.endswith('.rtf'):
+                    if os.path.isfile(file_path):
+                        # print(file_path)
+
                         # Process the RTF file
-                        if process_rtf_file(file_path, target_string):
+
+                        if process_rtf_file(file_path, processed_target_string):
                             # Copy the file to the matching folder
                             copy_file_to_subfolder(file_path, folder_path)
-
+                        else:
+                            continue
 
         # Print a message when script execution is completed
         print("Script execution completed.")
