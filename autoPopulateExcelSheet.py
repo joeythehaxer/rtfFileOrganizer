@@ -3,8 +3,8 @@ import openpyxl
 from striprtf.striprtf import rtf_to_text
 
 # Constants
-FOLDER_PATH = r"C:\Users\Joseph\PycharmProjects\NewEmailAutomation\C ACTIONS TO ADD"
-EXCEL_FILE_PATH = r"C:\Users\Joseph\PycharmProjects\NewEmailAutomation\New Microsoft Excel Worksheet.xlsx"
+FOLDER_PATH = r"C:\Users\josep\PycharmProjects\rtfFileOrganizer\C ACTIONS TO ADD"
+EXCEL_FILE_PATH = r"C:\Users\josep\PycharmProjects\rtfFileOrganizer\New Microsoft Excel Worksheet.xlsx"
 SHEET_NAME = "Sheet1"
 CELLS_TO_TARGET = [(1, 1), (2, 2), (3, 3)]  # Example: Targeting cells A1, B2, and C3
 
@@ -18,19 +18,27 @@ def find_last_empty_row(ws):
 
 
 def extract_info_from_rtf(file_path):
-    print(file_path)
+
     extracted_info = []
     with open(file_path, 'r') as f:
         rtf_content = f.read()
         plain_text = rtf_to_text(rtf_content)
         lines = plain_text.split("|")
-        print(lines[23])
-        for row_num, col_num in CELLS_TO_TARGET:
-            if row_num <= len(lines):
-                row_content = lines
+        print(lines)
+        # client string
+        clientraw = lines[0].split(">")[1]
+        client = ""
+        for char in clientraw:
+            if char.isalnum() or char == " ":
+                client+=char
+        # Client Derivative String
+        clientDerivative = lines[50]
+        # LFS Job String
+        jobString = "3197"
+        ponumberString = lines[2]
+        print(ponumberString)
 
-                if col_num <= len(row_content):
-                    extracted_info.append()
+
     return extracted_info
 
 
