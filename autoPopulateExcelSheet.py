@@ -1,5 +1,7 @@
+from decimal import Decimal, ROUND_HALF_UP
 import os
 import re
+import openpyxl
 from openpyxl import load_workbook
 from striprtf import striprtf
 from langdetect import detect
@@ -8,6 +10,10 @@ from langdetect import detect
 FOLDER_PATH = "C ACTIONS TO ADD"
 EXCEL_FILE_PATH = "New Microsoft Excel Worksheet.xlsx"
 SHEET_NAME = "Sheet1"
+
+
+def add_decimal(num1, num2, precision=2):
+    return Decimal(num1) + Decimal(num2)
 
 
 def remove_non_english(text):
@@ -49,6 +55,24 @@ def summarize(text):
     return english_text
 
 
+# Load the Excel workbook
+workbook = openpyxl.load_workbook(
+    r'C:\Users\Joseph\OneDrive - London Fire Solutions\Documents\GitHub\rtfFileOrganizer\New Microsoft Excel Worksheet.xlsx')
+
+# Select the active worksheet
+worksheet = workbook.active
+
+# Find the index of the last row
+last_row = worksheet.max_row
+
+# Read the content of the last row in the second column
+content = worksheet.cell(row=last_row, column=1).value
+if isinstance(content, type(None)):
+    content = 1
+
+print("Content of the last row in the second column:", content)
+
+
 def load_excel_workbook():
     """
     Load the Excel workbook from the specified path.
@@ -72,7 +96,7 @@ def find_last_empty_row(ws):
     return ws.max_row + 1
 
 
-def extract_info_from_rtf(file_path):
+def extract_info_from_rtf(file_path, number):
     """
     Extract information from the RTF file.
 
@@ -93,6 +117,9 @@ def extract_info_from_rtf(file_path):
     job_string = "3197"
     po_number_string = lines[2]
     address_string = lines[23]
+    address_string = address_string.split("\n")
+    address_string.pop(0)
+    address_string = ", ".join(address_string)
     postcode_pattern = re.compile(r'\b[A-Z]{1,2}\d{1,2}\s\d[A-Z]{2}\b')
     risk_string = ""
 
@@ -119,11 +146,13 @@ def extract_info_from_rtf(file_path):
     english_action_string = summarize(raw_action_description_string)
 
     if len(tender_number_list) <= 1:
-        extracted_info = [client_derivative, job_string, po_number_string, tender_number_string,
+        extracted_info = [number, "Guinness Partnership", client_derivative, job_string, po_number_string,
+                          tender_number_string,
                           date_raised_string, target_date_string, tel_string, address_string,
                           postcode_string, risk_string, english_action_string]
     else:
-        extracted_info = [client_derivative, job_string, po_number_string, tender_number_list,
+        extracted_info = [number, "Guinness Partnership", client_derivative, job_string, po_number_string,
+                          tender_number_list,
                           date_raised_string, target_date_string, tel_string, address_string,
                           postcode_string, risk_string, english_action_string]
 
@@ -142,14 +171,18 @@ def paste_info_to_excel(ws, extracted_info, last_row):
     Returns:
     int: Updated index of the last row.
     """
-    if isinstance(extracted_info[3], list):
-        for tender_number in extracted_info[3]:
-            extracted_info[3] = tender_number
-            for column, cell_text in enumerate(extracted_info, start=2):
+    if isinstance(extracted_info[5], list):
+        number = Decimal('0.00')  # Initialize as Decimal
+        for tender_number in extracted_info[5]:
+            extracted_info[5] = tender_number
+            extracted_info[0] = Decimal(extracted_info[0]) + number
+            for column, cell_text in enumerate(extracted_info, start=1):
                 ws.cell(row=last_row, column=column).value = cell_text
             last_row += 1
+            number += Decimal('0.10')  # Increment as Decimal
+            print(number)
     else:
-        for column, cell_text in enumerate(extracted_info, start=2):
+        for column, cell_text in enumerate(extracted_info, start=1):
             ws.cell(row=last_row, column=column).value = cell_text
         last_row += 1
 
@@ -172,13 +205,14 @@ def import_info_from_rtf_folder():
     """
     wb = load_excel_workbook()
     ws = wb[SHEET_NAME]
-
+    contentint = int(content)
     for filename in os.listdir(FOLDER_PATH):
         if filename.endswith(".rtf"):
             file_path = os.path.join(FOLDER_PATH, filename)
-            extracted_info = extract_info_from_rtf(file_path)
+            extracted_info = extract_info_from_rtf(file_path, contentint)
             last_row = find_last_empty_row(ws)
             last_row = paste_info_to_excel(ws, extracted_info, last_row)
+            contentint += 1
 
     save_excel_workbook(wb)
 

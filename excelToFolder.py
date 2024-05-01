@@ -5,10 +5,10 @@ from tkinter import filedialog
 from tkinter import ttk
 
 # Test values
-TEST_EXCEL_FILE = r"C:\Users\Joseph\PycharmProjects\NewEmailAutomation\NEW Project Hub Priorities .xlsx"
-TEST_SHEET_NAME = "DIP Tracker NEW "
-TEST_OUTPUT_DIR = r"C:\Users\Joseph\PycharmProjects\NewEmailAutomation\lwo"
-TEST_ID_CHARACTER_NUM = 7
+TEST_EXCEL_FILE = r"C:\Users\Joseph\OneDrive - London Fire Solutions\Documents\GitHub\rtfFileOrganizer\New Microsoft Excel Worksheet.xlsx"
+TEST_SHEET_NAME = "Sheet1"
+TEST_OUTPUT_DIR = r"C:\Users\Joseph\OneDrive - London Fire Solutions\Documents\GitHub\rtfFileOrganizer\lwo"
+TEST_ID_CHARACTER_NUM = 9
 TEST_IDENTIFYING_NUMBER = "PO number / Action Number"
 TEST_RELATED_DATA_2 = "ITEM LOCATION / ADDRESS"
 TEST_RELATED_DATA_3 = "POSTCODE"
@@ -51,7 +51,6 @@ def create_folders():
 
         # Get a list of existing folder names in the output directory
 
-
         # Iterate through the values in the specified columns and create folder name
         # Iterate through the values in the specified columns and create folder name
         for index, row in df.iterrows():
@@ -59,13 +58,15 @@ def create_folders():
             po_number = str(row[COLUMN_NAMES[0]])
             address = str(row[COLUMN_NAMES[1]])
             postcode = str(row[COLUMN_NAMES[2]])
-
-            folder_name = f"{po_number} {address}".replace("/", "-")
-            folder_name = "".join(x for x in folder_name if x.isalnum() or x in [' ', '_', "-"])
+            new_po_number = "".join(x for x in po_number if x.isalnum() or x in ["_", "/"])
+            folder_name = f"{new_po_number}".replace("/", "-")
+            new_address = "".join(x for x in address if x.isalnum() or x in ["_", " ", "-"])
+            folder_name += f"  {new_address}"
             if len(folder_name) > 120:
-                folder_name = f"{po_number} {postcode}".replace("/", "-")
-                folder_name = "".join(x for x in folder_name if x.isalnum() or x in [' ', '_', "-"])
-
+                new_po_number = "".join(x for x in po_number if x.isalnum() or x in ["_", "/"])
+                folder_name = f"{new_po_number}".replace("/", "-")
+                new_postcode = "".join(x for x in postcode if x.isalnum() or x in ["_", " ", "-"])
+                folder_name += f"  {new_postcode}"
             # Check if any existing folder contains the folder name
             folder_exists = any(
                 folder_name[:TEST_ID_CHARACTER_NUM] in existing_folder for existing_folder in existing_folders)
